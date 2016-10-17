@@ -41,6 +41,7 @@ allprojects {
 >        List<Integer> ids = new ArrayList<>();
 >        ids.add(R.mipmap.image1);
 >        ids.add(R.mipmap.image2);
+>        //ids支持int和String
 >        banner.setIds(ids);        
 
 ##5、有问题反馈
