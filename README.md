@@ -8,7 +8,8 @@
 >    ...
 >    compile 'com.github.langxing:CustomBanner:1.0'
 >}
-
+>
+>
 >.\build.gradle
 >allprojects {
 >    repositories {
@@ -18,15 +19,15 @@
 >}
 
 ##2、布局：
->    <com.example.bannerlibrary.Banner
->        android:id="@+id/banner"
->        android:layout_width="match_parent"
->        android:layout_height="match_parent"
->        android:visibility="gone"
->        app:dotHei="2dp"
->        app:dotMar="10dp"
->        app:dotWid="10dp"
->        app:dotScr="@drawable/dot_selector">
+    <com.example.bannerlibrary.Banner
+        android:id="@+id/banner"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone"
+        app:dotHei="2dp"
+        app:dotMar="10dp"
+        app:dotWid="10dp"
+        app:dotScr="@drawable/dot_selector">
 
 ##3、属性说明：
        * dotHei 小圆点的高
