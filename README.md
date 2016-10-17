@@ -3,20 +3,21 @@
 
 ##1、添加依赖：
 
->app\build.gradle
->dependencies {
+app\build.gradle
+
+dependencies {
     ...
     compile 'com.github.langxing:CustomBanner:1.0'
->}
->
->
->.\build.gradle
->allprojects {
+}
+<p>
+.\build.gradle
+
+allprojects {
     repositories {
         jcenter()
         maven { url "https://jitpack.io" }
     }
->}
+}
 
 ##2、布局：
     <com.example.bannerlibrary.Banner
