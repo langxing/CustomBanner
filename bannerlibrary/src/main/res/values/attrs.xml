@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="Banner">
+        <attr name="delayMillis" format="integer"/>
+        <attr name="dotScr" format="reference"/>
+        <attr name="dotWid" format="dimension" />
+        <attr name="dotHei" format="dimension" />
+        <attr name="dotMar" format="dimension" />
+    </declare-styleable>
+</resources>
