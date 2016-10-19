@@ -44,7 +44,33 @@ allprojects {
 >        //ids支持int和String
 >        banner.setIds(ids);        
 
-##5、有问题反馈
+##5、setOnPagerClickListener： 当前点击页面的监听事件
+> banner.setOnPagerClickListener(new Banner.OnPagerClickListener() {
+>            @Override
+>            public void onClick(int position, ImageView imageView) {
+>                Toast.makeText(MainActivity.this, position + "", Toast.LENGTH_SHORT).show();
+>            }
+>        });
+
+##6、setOnPageSelectedListener: 当前显示页面的监听事件
+>  banner.setOnPageSelectedListener(new Banner.OnPageSelectedListener() {
+>            @Override
+>            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+>                
+>            }
+>
+>            @Override
+>            public void onPageSelected(int position) {
+>
+>            }
+>
+>            @Override
+>            public void onPageScrollStateChanged(int state) {
+>
+>            }
+>        });
+
+##7、有问题反馈
 在使用中有任何问题，欢迎反馈给我，可以用以下联系方式跟我交流
 
 * 邮件(2647759254@qq.com)
