@@ -13,8 +13,7 @@
         android:layout_height="30dp"
         android:layout_alignParentBottom="true"
         android:gravity="center"
-        android:orientation="horizontal"
-        android:background="#33E8E8E8">
+        android:orientation="horizontal" >
 
     </LinearLayout>
 </RelativeLayout>

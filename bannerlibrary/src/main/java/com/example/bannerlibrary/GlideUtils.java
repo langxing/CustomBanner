@@ -2,8 +2,8 @@ package com.example.bannerlibrary;
 
 import android.content.Context;
 import android.widget.ImageView;
-
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 
 import java.io.File;
 
@@ -37,9 +37,12 @@ public class GlideUtils {
     public void loadImageByUrl(String url, ImageView imageView) {
         Glide.with(mContext).
                 load(url).
+                asBitmap().
+                fitCenter().
                 centerCrop().
                 placeholder(R.drawable.img_def).
                 error(R.drawable.img_def)
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .into(imageView);
     }
 
@@ -51,6 +54,8 @@ public class GlideUtils {
     public void loadImageByRes(int id, ImageView imageview) {
         Glide.with(mContext).
                 load(id).
+                asBitmap().
+                fitCenter().
                 centerCrop().
                 placeholder(R.drawable.img_def).
                 error(R.drawable.img_def)
@@ -65,6 +70,8 @@ public class GlideUtils {
     public void loadImageByPath(String path, ImageView imageview) {
             Glide.with(mContext).
                     load(new File(path)).
+                    asBitmap().
+                    fitCenter().
                     centerCrop()
                     .placeholder(R.drawable.img_def).
                     error(R.drawable.img_def)

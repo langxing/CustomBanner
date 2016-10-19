@@ -3,11 +3,11 @@ package com.example.bannerlibrary;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,7 +15,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -27,14 +26,20 @@ import static android.support.v4.view.ViewPager.SCROLL_STATE_IDLE;
  * Created by jack on 2016/10/17.
  */
 
-public class Banner extends RelativeLayout implements ViewPager.OnPageChangeListener  {
+public class Banner extends RelativeLayout implements ViewPager.OnPageChangeListener {
+
+    public ViewPager getmViewPager() {
+        return mViewPager;
+    }
 
     private ViewPager mViewPager;
     private Context context;
     private Banner.CustomAdapter adapter;
+    private OnPagerClickListener clickListener;
+    private OnPageSelectedListener selectedListener;
     private LinearLayout linearLayout;
     private LinkedList<ImageView> mCaches = new LinkedList<>();
-    private List<? extends Object> ids = new ArrayList<>();
+    private List<? extends Object> images = new ArrayList<>();
     private int interval; //间隔时间
     private int dotWid; //小圆点宽
     private int dotHei; //小圆点高
@@ -43,12 +48,12 @@ public class Banner extends RelativeLayout implements ViewPager.OnPageChangeList
     private Banner.CustomRunnable myRunnable;
     private int oldSel = 0;
 
-    public void setIds(List<? extends Object> ids) {
-        this.ids = ids;
-        if(ids == null || ids.size() == 0) {
+    public void setImages(List<? extends Object> images) {
+        this.images = images;
+        if (images == null || images.size() == 0) {
             return;
         }
-        int count = ids.size();
+        int count = images.size();
         for (int i = 0; i < count; i++) {
             View view = new View(context);
             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(dotWid, dotHei);
@@ -92,7 +97,7 @@ public class Banner extends RelativeLayout implements ViewPager.OnPageChangeList
 
     public void start() {
         stop();
-        if (ids.size() > 1) {
+        if (images.size() > 1) {
             mViewPager.postDelayed(myRunnable, interval);
         }
     }
@@ -103,12 +108,17 @@ public class Banner extends RelativeLayout implements ViewPager.OnPageChangeList
 
     @Override
     public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-
+        if (selectedListener != null) {
+            selectedListener.onPageScrolled(position, positionOffset, positionOffsetPixels);
+        }
     }
 
     @Override
     public void onPageSelected(int position) {
-        int curSel = position % ids.size();
+        if (selectedListener != null) {
+            selectedListener.onPageSelected(position);
+        }
+        int curSel = position % images.size();
         linearLayout.getChildAt(oldSel).setSelected(false);
         linearLayout.getChildAt(curSel).setSelected(true);
         oldSel = curSel;
@@ -116,6 +126,9 @@ public class Banner extends RelativeLayout implements ViewPager.OnPageChangeList
 
     @Override
     public void onPageScrollStateChanged(int state) {
+        if (selectedListener != null) {
+            selectedListener.onPageScrollStateChanged(state);
+        }
         if (state == SCROLL_STATE_IDLE)
             start();
         else if (state == SCROLL_STATE_DRAGGING)
@@ -126,7 +139,7 @@ public class Banner extends RelativeLayout implements ViewPager.OnPageChangeList
 
         @Override
         public int getCount() {
-            return ids.size() == 1 ? 1 : Integer.MAX_VALUE;
+            return images.size() == 1 ? 1 : Integer.MAX_VALUE;
         }
 
         @Override
@@ -136,15 +149,14 @@ public class Banner extends RelativeLayout implements ViewPager.OnPageChangeList
 
         @Override
         public void destroyItem(ViewGroup container, int position, Object object) {
-            container.removeView((View) object);
-            if(object != null) {
-                mCaches.clear();
-                mCaches.add((ImageView) object);
-            }
+            ImageView imageView = (ImageView) object;
+            container.removeView(imageView);
+            mCaches.clear();
+            mCaches.add(imageView);
         }
 
         @Override
-        public Object instantiateItem(ViewGroup container, int position) {
+        public Object instantiateItem(ViewGroup container, final int position) {
             ImageView imageView = null;
             if (mCaches.size() == 0) {
                 imageView = new ImageView(context);
@@ -153,14 +165,41 @@ public class Banner extends RelativeLayout implements ViewPager.OnPageChangeList
             } else {
                 imageView = mCaches.removeFirst();
             }
-            Object obj = ids.get(position % ids.size());
-            if(obj instanceof String) {
+            imageView.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (clickListener != null) {
+                        clickListener.onClick(position % images.size(), (ImageView) v);
+                    }
+                }
+            });
+            Object obj = images.get(position % images.size());
+            if (obj instanceof String) {
                 GlideUtils.getInstance(context).loadImageByUrl(obj.toString(), imageView);
-            }else {
+            } else {
                 GlideUtils.getInstance(context).loadImageByRes((Integer) obj, imageView);
             }
             container.addView(imageView);
             return imageView;
+        }
+    }
+
+    /**
+     * 回收ImageView占用的图像内存
+     *
+     * @param imageView
+     */
+    public void releaseIV(ImageView imageView) {
+        if (imageView == null) return;
+        Drawable drawable = imageView.getDrawable();
+        if (drawable != null && drawable instanceof BitmapDrawable) {
+            BitmapDrawable bd = (BitmapDrawable) drawable;
+            Bitmap bitmap = bd.getBitmap();
+            if (bitmap == null || bitmap.isRecycled()) return;
+            imageView.setImageBitmap(null);
+            bitmap.recycle();
+            bitmap = null;
+            System.gc();
         }
     }
 
@@ -178,5 +217,25 @@ public class Banner extends RelativeLayout implements ViewPager.OnPageChangeList
             start();
             mViewPager.setCurrentItem(newSel);
         }
+    }
+
+    public void setOnPagerClickListener(OnPagerClickListener clickListener) {
+        this.clickListener = clickListener;
+    }
+
+    public interface OnPagerClickListener {
+        public void onClick(int position, ImageView imageView);
+    }
+
+    public void setOnPageSelectedListener(OnPageSelectedListener selectedListener) {
+        this.selectedListener = selectedListener;
+    }
+
+    public interface OnPageSelectedListener {
+        public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels);
+
+        public void onPageSelected(int position);
+
+        public void onPageScrollStateChanged(int state);
     }
 }
